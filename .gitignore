@@ -1,3 +1,7 @@
+# Challenge input
+input.*
+tmp
+
 # Logs
 logs
 *.log
