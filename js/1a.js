@@ -1,0 +1,1 @@
+IN.split('\n').map(m => OUT += m / 3 - 2 ^ 0)
