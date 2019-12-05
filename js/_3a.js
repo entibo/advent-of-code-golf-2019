@@ -1,4 +1,3 @@
-min=Math.min,max=Math.max,abs=Math.abs,
 dir={R:[1,0],L:[-1,0],U:[0,-1],D:[0,1]},
 [w1,w2]=
   IN

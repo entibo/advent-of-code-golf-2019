@@ -3,11 +3,25 @@
 code="`cat ./js/$1.js`"
 
 echo "
-IN=\``cat ./input.txt`\`;
-let hrstart = process.hrtime();
-$code;
-console.log('Answer: '+OUT);
-console.log('Took '+process.hrtime(hrstart)[1]/1000000+'ms');
+let a = 0
+let context = {
+  get EXIT(){_EXIT()},
+  IN: \``cat ./input.txt`\`,
+  OUT: 0,
+  _: null,
+  ...Math,
+}
+function _EXIT() {
+  console.log('Answer: ' + context.OUT)
+  let time = process.hrtime(hrstart)
+  console.log('Took (' + time[0] + ')' + time[1]/1000000 + 'ms')
+  process.exit(0)
+}
+let hrstart = process.hrtime()
+with(context) {
+  try {$code} catch(e) { console.log(e) }
+}
+_EXIT()
 " | node
 
 echo "Stats: `echo "$code" | wc -l` lines, `echo $code | wc -c` characters"
