@@ -3,13 +3,24 @@
 code="`cat ./js/$1.js`"
 
 echo "
-let a = 0
 let context = {
   get EXIT(){_EXIT()},
   IN: \``cat ./input.txt`\`,
   OUT: 0,
   _: null,
+  ထ: Infinity,
   ...Math,
+  fold: (...args) => Array.prototype.reduce.call(...args),
+  map: (...args) => Array.prototype.map.call(...args),
+  scan: (a, f, ...init) => { 
+    let result, values = []
+    Array.prototype.reduce.call(
+      a, 
+      (x,y,i) => ( values.push(result = f(x,y,i,a)), result ), 
+      ...init )
+    return values
+  },
+  zip: (...as) => Array(Math.min(...as.map(a=>a.length))).fill().map((_,i)=>as.map(a=>a[i]))
 }
 function _EXIT() {
   console.log('Answer: ' + context.OUT)
