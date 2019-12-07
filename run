@@ -1,38 +1,8 @@
 #!/usr/bin/bash
 
-code="`cat ./js/$1.js`"
+code=`cat ./js/$1.js`
+input="`cat ./input.txt`"
 
-echo "
-let context = {
-  get EXIT(){_EXIT()},
-  IN: \``cat ./input.txt`\`,
-  OUT: 0,
-  _: null,
-  ထ: Infinity,
-  ...Math,
-  fold: (...args) => Array.prototype.reduce.call(...args),
-  map: (...args) => Array.prototype.map.call(...args),
-  scan: (a, f, ...init) => { 
-    let result, values = []
-    Array.prototype.reduce.call(
-      a, 
-      (x,y,i) => ( values.push(result = f(x,y,i,a)), result ), 
-      ...init )
-    return values
-  },
-  zip: (...as) => Array(Math.min(...as.map(a=>a.length))).fill().map((_,i)=>as.map(a=>a[i]))
-}
-function _EXIT() {
-  console.log('Answer: ' + context.OUT)
-  let time = process.hrtime(hrstart)
-  console.log('Took (' + time[0] + ')' + time[1]/1000000 + 'ms')
-  process.exit(0)
-}
-let hrstart = process.hrtime()
-with(context) {
-  try {$code} catch(e) { console.log(e) }
-}
-_EXIT()
-" | node
+node "./context.js" "$code" "$input"
 
 echo "Stats: `echo "$code" | wc -l` lines, `echo $code | wc -c` characters"
