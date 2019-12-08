@@ -1,1 +1,1 @@
-IN.split('\n').map(m => { while(m = m / 3 - 2 ^ 0, m > 0) OUT += m })
+IN.split('\n').map(m => { while((m = m / 3 - 2 ^ 0) > 0) OUT += m })
