@@ -33,6 +33,8 @@ let context = {
 
 }
 
+const isIterable = o => (o != null) && (typeof o[Symbol.iterator] === 'function')
+
 // ஃ ೱ ၜ ᐃᐂ
 const registerAccessor1 = 'o'
 const registerAccessor2 = 'õ'
@@ -42,7 +44,7 @@ for(let register of 'XYZ') {
   Object.defineProperties(context, {
     [register]: {
       get()   { return context[k] },
-      set(v)  { return context[k] = [...v] },
+      set(v)  { return context[k] = isIterable(v) ? [...v] : v },
     },
     [registerAccessor1+register]: {
       get()   { return context[k][0] },
@@ -75,7 +77,7 @@ for(let register of 'XYZ') {
         if(typeof v === 'number') context[kidx] = v
         else {
           context[kidx] = 0
-          context[k] = [...v] 
+          context[k] = isIterable(v) ? [...v] : v
           context[k].valueOf = () => context[kidx]
         }
         return context[k]
