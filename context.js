@@ -1,4 +1,6 @@
 
+let intcode = require("./intcode.js")
+
 let code = process.argv[2],
     input = process.argv[3]
 
@@ -8,11 +10,20 @@ let context = {
   OUT: 0,
   get EXIT(){_EXIT()},
 
+  intcode,
+
   _: null,
   ထ: Infinity,
-  ...Math,
 
-  fold: (...args) => Array.prototype.reduce.call(...args),
+  ...Object.getOwnPropertyNames(Math)
+       .reduce((o,k) => ({ [k]: Math[k], ...o }), {}),
+
+  fold: (...args) => {
+    if(typeof args[0] === 'function') {
+      return a => Array.prototype.reduce.apply(a, args)
+    }
+    return Array.prototype.reduce.call(...args)
+  },
   map: (...args) => Array.prototype.map.call(...args),
   scan: (a, f, ...init) => { 
     let result, values = []
@@ -30,6 +41,28 @@ let context = {
   __g: () => {},
   get G()  { return context.__g() },
   set G(v) { return context.__g = v },
+
+  range(...args) {
+    let a=0, b=0, c=1, m = 'push'
+    if(args.length === 0) return []
+    else if(args.length === 1) b = args[0]
+    else {
+      a = args[0], b = args[1]
+      if(args.length >= 3) c = args[2]
+    }
+    if(a > b) {
+      [a,b]=[b+1,a+1]
+      m = 'unshift'
+    }
+    c = Math.abs(c)
+    let r = []
+    for(; a < b; a += c) r[m](a)
+    return r
+  },
+
+  frange(...args) {
+    return f => context.range(...args).map(f)
+  },
 
 }
 
@@ -92,6 +125,27 @@ for(let register of 'XYZ') {
       set(v)  { return context[k][context[kidx]++] = v },
     },
   })
+}
+
+if(typeof Array.prototype.flatMap !== 'function') {
+  Array.prototype.flat = function() {
+    let r = []
+    for(let x of this) {
+      if(x instanceof Array) r.push(...x)
+      else r.push(x)
+    }
+    return r
+  }
+  Array.prototype.flatMap = function(...args) {
+    return this.map(...args).flat()
+  }
+}
+
+Array.prototype.swap = function(i, j) {
+  let tmp = this[i]
+  this[i] = this[j]
+  this[j] = tmp
+  return this
 }
 
 function _EXIT() {
