@@ -1,5 +1,5 @@
 
-let intcode = require("./intcode.js")
+let IntCodeProgram = require("./intcode.js")
 
 let code = process.argv[2],
     input = process.argv[3]
@@ -10,7 +10,8 @@ let context = {
   OUT: 0,
   get EXIT(){_EXIT()},
 
-  intcode,
+  IntCodeProgram,
+  intcode: program => new IntCodeProgram(program, true),
 
   _: null,
   ထ: Infinity,
