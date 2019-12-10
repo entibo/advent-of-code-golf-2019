@@ -149,6 +149,13 @@ Array.prototype.swap = function(i, j) {
   return this
 }
 
+for(let [k,i] of [['x',0],['y',1],['z',2],['w',3]]) {
+  Object.defineProperty(Array.prototype, k, {
+    get() { return this[i] },
+    set(v) { return this[i] = v },
+  })
+}
+
 function _EXIT() {
   console.log('Answer: ' + context.OUT)
   let time = process.hrtime(hrstart)
