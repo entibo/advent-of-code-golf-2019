@@ -22,7 +22,7 @@ class IntCodeProgram extends Array {
 
   constructor(program, autoStart=false) {
     super()
-    this.push(...program.split(',').map(x => x^0))
+    this.push(...program.split(',').map(x => parseInt(x)))
 
     this.inputBuffer = []
     this.outputBuffer = []
@@ -147,7 +147,10 @@ class IntCodeProgram extends Array {
       throw 'Out-of-range pointer (read): '+pointer
     }
     if(parameterMode === PARAMETER_MODE.IMMEDIATE) {
-      return this[pointer] !== undefined ? this[pointer] : 0
+      if(this[pointer] === undefined) { // Memory 
+        return 0
+      }
+      return this[pointer]
     }
     else if(parameterMode === PARAMETER_MODE.POSITION){
       let a = this.read(pointer, PARAMETER_MODE.IMMEDIATE)
