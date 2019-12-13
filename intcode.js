@@ -126,7 +126,6 @@ class IntCodeProgram extends Array {
         default:
           this.state = 'ERROR'
           throw 'Unknown opcode: '+header.opcode
-          break
       }
 
     }

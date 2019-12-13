@@ -6,8 +6,18 @@ let code = process.argv[2],
 
 let context = {
 
-  IN: input,
+  IN: input, 
+  /* new Proxy(_=>{}, {
+    apply(_, __, ...args) {
+      if(args[0] instanceof Array) {
+        return input.split(args[0][0])
+      }
+      return input.slice(...args)
+    },
+  }), */
+
   OUT: 0,
+
   get EXIT(){_EXIT()},
 
   IntCodeProgram,
@@ -25,7 +35,6 @@ let context = {
     }
     return Array.prototype.reduce.call(...args)
   },
-  map: (...args) => Array.prototype.map.call(...args),
   scan: (a, f, ...init) => { 
     let result, values = []
     Array.prototype.reduce.call(
@@ -35,6 +44,56 @@ let context = {
     return values
   },
   zip: (...as) => Array(Math.min(...as.map(a=>a.length))).fill().map((_,i)=>as.map(a=>a[i])),
+
+  zip(...args) {
+    let n = Math.min(...args.filter(isIterable).map(a=>a.length))
+    let iterables = []
+    let withFn = null
+    for(let a of args) {
+      if(typeof a === 'function') withFn = a
+      else if(isIterable(a)) iterables.push(a)
+      else iterables.push( Array(n).fill(a) )
+    }
+
+    let result = Array(n)
+    for(let i=0; i < n; i++) {
+      let values = iterables.map(x => x[i])
+      result[i] = withFn ? withFn(...values) : values
+    }
+
+    return result
+  },
+  
+/*   map: (...args) => Array.prototype.map.call(...args),
+
+  map(...args) {
+    if(args.length === 1) {
+      return iterable => Array.prototype.map.call(iterable, args[0])
+    }
+    return Array.prototype.map.call(...args)
+  }, */
+
+  map(...as) {
+    if(typeof as[0] === 'function') {
+      return (...bs) => bs.length === 1
+        ? context.map(bs[0], ...as)
+        : context.map(bs, ...as)
+    }
+    else {
+      let [value, ...functions] = as
+      for(let fn of functions) {
+        if(isIterable(value)) {
+          let r = []
+          for(let x of value) r.push(fn(x))
+          value = r
+        }
+        else {
+          value = fn(value)
+        }
+      }
+      return value
+    }
+  },
 
   __f: () => {},
   get F()  { return context.__f() },
@@ -69,7 +128,28 @@ let context = {
 
 const isIterable = o => (o != null) && (typeof o[Symbol.iterator] === 'function')
 
-// ஃ ೱ ၜ ᐃᐂ
+{
+  function make(fn) {
+    let rec = (...args) => {
+      if(args.length === 0) return 0
+      let includesIterables = args.filter(isIterable).length > 0
+      if(args.length === 1) {
+        return includesIterables
+          ? rec(...args[0])
+          : rec(args[0], args[0])
+      }
+      return includesIterables
+        ? context.zip(...args, rec)
+        : fn(...args)
+    }
+    return rec
+  }
+  context.Σ = make((...args) => args.reduce((a,b) => a+b))
+  context.Π = make((...args) => args.reduce((a,b) => a*b))
+  context.ζ = make
+}
+
+// ஃ ೱ ၜ ᐃᐂ ᕀ ᕁ ᛜ 
 const registerAccessor1 = 'o'
 const registerAccessor2 = 'õ'
 for(let register of 'XYZ') {
