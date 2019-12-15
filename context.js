@@ -20,6 +20,10 @@ let context = {
 
   get EXIT(){_EXIT()},
 
+  set PRINT(v) {
+    console.log(v)
+  },
+
   IntCodeProgram,
   intcode: program => new IntCodeProgram(program, true),
 
@@ -28,6 +32,10 @@ let context = {
 
   ...Object.getOwnPropertyNames(Math)
        .reduce((o,k) => ({ [k]: Math[k], ...o }), {}),
+
+  Ξk  : o => Object.keys(o),       
+  Ξv  : o => Object.values(o),       
+  Ξkv : o => Object.entries(o),       
 
   fold: (...args) => {
     if(typeof args[0] === 'function') {
@@ -136,7 +144,7 @@ const isIterable = o => (o != null) && (typeof o[Symbol.iterator] === 'function'
       if(args.length === 1) {
         return includesIterables
           ? rec(...args[0])
-          : rec(args[0], args[0])
+          : fn(...args)
       }
       return includesIterables
         ? context.zip(...args, rec)
@@ -233,6 +241,19 @@ for(let [k,i] of [['x',0],['y',1],['z',2],['w',3]]) {
   Object.defineProperty(Array.prototype, k, {
     get() { return this[i] },
     set(v) { return this[i] = v },
+  })
+}
+
+Object.prototype._ = function(def) {
+  let initFn = 
+    def instanceof Array ? () => def.slice()
+                         : () => def
+
+  return new Proxy(this, {
+    get(target, k) {
+      let current = target[k]
+      return current != null ? current : (target[k] = initFn())
+    }
   })
 }
 
