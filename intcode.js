@@ -22,16 +22,33 @@ class IntCodeProgram extends Array {
 
   constructor(program, autoStart=false) {
     super()
-    this.push(...program.split(',').map(x => parseInt(x)))
 
-    this.inputBuffer = []
-    this.outputBuffer = []
+    if(program instanceof IntCodeProgram) {
+      this.push(...program)
+      
+      this.inputBuffer = program.inputBuffer.slice()
+      this.outputBuffer = program.outputBuffer.slice()
 
-    this.pointer = 0
-    this.relativeBase = 0
-    this.state = 'READY'
+      this.pointer = program.pointer
+      this.relativeBase = program.relativeBase
+      this.state = program.state
+    }
+    else {
+      this.push(...program.split(',').map(x => parseInt(x)))
+
+      this.inputBuffer = []
+      this.outputBuffer = []
+
+      this.pointer = 0
+      this.relativeBase = 0
+      this.state = 'READY'
+    }
 
     autoStart && this.compute()
+  }
+
+  clone() {
+    return new IntCodeProgram(this)
   }
 
   input(...values) {
