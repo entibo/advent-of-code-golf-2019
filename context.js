@@ -43,12 +43,16 @@ let context = {
     }
     return Array.prototype.reduce.call(...args)
   },
-  scan: (a, f, ...init) => { 
+  scan: (a, f, ...rest) => { 
     let result, values = []
-    Array.prototype.reduce.call(
-      a, 
-      (x,y,i) => ( values.push(result = f(x,y,i,a)), result ), 
-      ...init )
+    let rf = (x,y,i) => ( values.push(result = f(x,y,i,a)), result )
+    if(rest.length === 0)
+      Array.prototype.reduce.call(a, rf)
+    else {
+      let init = rest[0]
+      values.push(init)
+      Array.prototype.reduce.call(a, rf, init)
+    }
     return values
   },
   zip: (...as) => Array(Math.min(...as.map(a=>a.length))).fill().map((_,i)=>as.map(a=>a[i])),
@@ -71,6 +75,29 @@ let context = {
 
     return result
   },
+
+  repeat(arg, n=1) {
+    if(typeof arg === 'string') return arg.repeat(n)
+    if(arg instanceof Array) {
+      let r = []
+      for(let i=0; i < n; i++) {
+        r = r.concat(arg)
+      }
+      return r
+    }
+    let r = []
+    for(let i=0; i < n; i++) {
+      r.push(arg)
+    }
+    return r
+  },
+
+  rotate(arg, n=0) {
+    if(!arg.slice) throw 'no good'
+    let concat = typeof arg === 'string' ? (a,b) => a+b : (a,b) => a.concat(b)
+    if(n == 0) return arg
+    else return concat( arg.slice(n), arg.slice(0, n) )
+  },
   
 /*   map: (...args) => Array.prototype.map.call(...args),
 
@@ -83,6 +110,7 @@ let context = {
 
   map(...as) {
     if(typeof as[0] === 'function') {
+      console.log('map: as[0] is function', as[0])
       return (...bs) => bs.length === 1
         ? context.map(bs[0], ...as)
         : context.map(bs, ...as)
@@ -101,6 +129,13 @@ let context = {
       }
       return value
     }
+  },
+
+  flat(a) {
+    return Array.prototype.flat.call(a)
+  },
+  flatMap(...as) {
+    return context.map(...as).flat()
   },
 
   __f: () => {},
