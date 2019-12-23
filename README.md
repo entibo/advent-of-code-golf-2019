@@ -1,3 +1,5 @@
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/entibo/advent-of-code-golf-2019) 
+
 # advent-of-code-golf-2019
 
 * A program can read the input from variable `IN` and should write the output in `OUT` (initially 0)

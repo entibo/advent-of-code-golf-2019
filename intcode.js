@@ -52,6 +52,10 @@ class IntCodeProgram extends Array {
   }
 
   input(...values) {
+    values = values.map(x => {
+      if(typeof x === 'string') return x.charCodeAt(0)
+      else return x
+    })
     this.inputBuffer.push(...values)
     if(this.state === 'WAITING_FOR_INPUT') {
       this.compute()

@@ -43,6 +43,12 @@ let context = {
     }
     return Array.prototype.reduce.call(...args)
   },
+  filter: (...args) => {
+    if(typeof args[0] === 'function') {
+      return a => Array.prototype.filter.apply(a, args)
+    }
+    return Array.prototype.filter.call(...args)
+  },
   scan: (a, f, ...rest) => { 
     let result, values = []
     let rf = (x,y,i) => ( values.push(result = f(x,y,i,a)), result )
@@ -278,6 +284,8 @@ for(let [k,i] of [['x',0],['y',1],['z',2],['w',3]]) {
     set(v) { return this[i] = v },
   })
 }
+
+Array.prototype.valueOf = function() { return this.length }
 
 Object.prototype._ = function(def) {
   let initFn = 
